@@ -52,6 +52,7 @@ if(! class_exists ("Lever_Jobs_Plugin") ) {
 
     public function plugin_admin_styles() {
       wp_enqueue_style('lever_jobs-admin-styles', $this->getBaseUrl() . '/assets/css/plugin-admin-styles.css');
+      wp_enqueue_script('lever_jobs-script', $this->getBaseUrl() . '/assets/js/lever-jobs-filter.js', true, TK_THEME_VERSION);
     }
 
     /**
@@ -147,6 +148,56 @@ if(! class_exists ("Lever_Jobs_Plugin") ) {
       );
     }
 
+    public function generateFilterDropdowns() {
+      // Location Filter
+      $locations = $this->get_lever_locations();
+      $location_options = "<option value=''> - Location - </option>";
+      foreach ($locations as $location) {
+        $location_options .= "<option value='{$location}'>$location</option>";
+      }
+      $location_output = "
+        <select class='form-control filter' data-filter='location'>
+          {$location_options}
+        </select>
+      ";
+
+      // Department / Teams
+      $teams = $this->get_lever_teams();
+      $team_options = "<option value=''> - Department - </option>";
+      foreach ($teams as $team) {
+        $team_options .= "<option value='{$team}'>$team</option>";
+      }
+      $team_output = "
+        <select class='form-control filter' data-filter='team'>
+          {$team_options}
+        </select>
+      ";
+
+      // Job Type / Commitment
+      $commitments = $this->get_lever_commitments();
+      $commitment_options = "<option value=''> - Job Type - </option>";
+      foreach ($commitments as $commitment) {
+        $commitment_options .= "<option value='{$commitment}'>$commitment</option>";
+      }
+      $commitment_output = "
+        <select class='form-control filter' data-filter='commitment'>
+          {$commitment_options}
+        </select>
+      ";
+
+      return "<div class='row'>
+                <div class='col-md-4'>
+                  {$location_output} 
+                </div>
+                <div class='col-md-4'>
+                  {$team_output}
+                </div>
+                <div class='col-md-4'>
+                  {$commitment_output}
+                </div>
+              </div>";
+    }
+
     public function JobsShortCode($atts, $content = null) {
 
       if(isset($this->site_url) && $this->site_url != '') {
@@ -154,34 +205,43 @@ if(! class_exists ("Lever_Jobs_Plugin") ) {
         $positions = $this->get_lever_positions();
         $locations = $this->get_lever_locations();
         $teams = $this->get_lever_teams();
-        $commitments = $this->get_lever_commitments();
-
+        $commitments = $this->get_lever_commitments(); // contract type
+        
+        $output .= "<div class='job-filters'>
+                      {$this->generateFilterDropdowns()}
+                    </div>
+                    <div class='filter-results'>
+                      <div class='no-results-message hidden'>
+                        <h3 class='sub-title'>No Results</h3>
+                      </div>";
         foreach ($teams as $team) {
           $output .= '<div class="job-section">';
-          $output .= '<h3 class="title">'. ucwords($team) .'</h3>';
+          $output .= '<h3 class="title">'. ucwords($team) .'</h3><hr class="title-underline"/>';
           $output .= '<ul class="job-listings">';
 
           foreach ($positions as $position) {
             if($position['team'] == $team) {
-              $output .= '<li class="job-listing">';
-              $output .= '<a class="posting-title" href="' . $position['hostedUrl'] . '">';
-              $output .= '<h4>' . $position['title'] . '</h4>';
-              $output .= '<div class="posting-categories">';
-              $output .= '<span href="#" class="sort-by-location posting-category">' . $position['location'] . '</span>';
-              $output .= '<span href="#" class="sort-by-team posting-category">' . $position['team'] . '</span>';
-              $output .= '<span href="#" class="sort-by-commitment posting-category">' . $position['commitment'] . '</span>';
-              $output .= '</div>';
 
-              $output .= '</a>';
-
-              $output .= '</li>';
+              $output .= "<li class='job-listing' data-filter-location='{$position['location']}' data-filter-team='{$position['team']}' data-filter-commitment='{$position['commitment']}' data-show='true'>
+                            <div class='posting'>
+                              <h4><a href='{$position['hostedUrl']}' target='_blank'>{$position['title']}</a></h4>
+                              <div class='posting-categories'>
+                                <div href='#' class='sort-by-location posting-category'><em>Location:</em> {$position['location']}</div>
+                                <div href='#' class='sort-by-commitment posting-category'><em>Job Type:</em> {$position['commitment']}</div>
+                              </div>
+                              <div class='posting-apply'>
+                                <a class='btn btn-default' href='{$position['hostedUrl']}'>Apply</a>
+                              </div>
+                            </div>
+                          </li>
+                          ";
             }
           }
 
           $output .= '</ul>';
           $output .= '</div>';
         }
-
+        $output .= '</div>';
         return $output;
       }
 
@@ -349,9 +409,9 @@ if(! class_exists ("lever_jobs_Jobs_Widget") ) {
           echo 'ht_settings.site_url = "'.$site_url.'";';
           echo 'ht_settings.src_code = "wordpress";';
         echo '</script>';
-        echo '<script src="http://assets.Lever.com/javascripts/embed.js" type="text/javascript"></script>';
+        echo '<script src="http://assets.lever.com/javascripts/embed.js" type="text/javascript"></script>';
         echo '<div id="lever_jobs-jobs"></div>';
-        echo '<link rel="stylesheet" type="text/css" media="all" href="http://assets.Lever.com/stylesheets/embed.css" />';
+        echo '<link rel="stylesheet" type="text/css" media="all" href="http://assets.lever.com/stylesheets/embed.css" />';
         echo '<!-- end Lever Jobs Widget -->';
       } else {
         echo '<p>Please Enter your Lever Account URL in the Widgets Section.</p>';
