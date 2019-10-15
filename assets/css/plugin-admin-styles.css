@@ -1,17 +1,54 @@
 .job-section .job-listings li {
   margin: 0;
-  padding:1.5rem 0;
+  padding:1.5rem 0 3rem 0;
   list-style-type: none;
+  text-align: left;
+  border-bottom: 1px dotted rgba(128,128,128, 0.25);
+}
 
+.job-section .job-listings li:last-child {
+  border-bottom: none;
+  padding: 1.5rem 0;
+}
+
+.filter-results {
+  text-align: left;
+}
+
+.filter-results .no-results-message.hidden {
+  display: none;
+}
+
+.filter-results .no-results-message {
+  text-align: center;
 }
 
 .posting-category {
-    text-transform: uppercase;
-    display: inline-block;
-    margin-right: 15px;
-    color:#808080;
-    font-size: 12px;
-    line-height: 1.4;
+  text-transform: uppercase;
+  display: block;
+  color:#808080;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.posting-categories {
+  float: left;
+  width: 50%;
+}
+.posting-apply {
+  width: 50%;
+  display: block;
+  float: left;
+}
+
+.posting-apply .btn:hover {
+    background: #0093c9;
+    border-color: #0093c9;
+}
+
+.posting {
+  clear: both;
+  padding-bottom: 20px;
 }
 
 .job-section .job-listings li h4 {
@@ -26,13 +63,25 @@
     transition: color 150ms;
 }
 
-.job-section h3.title {
+hr.title-underline {
+  border-top-color: rgba(128,128,128,0.25);
+  width: 25%;
+  margin-left: 0;
+}
+
+.job-section h3.title,
+h3.sub-title {
   color: #808080;
   font-size: 2rem;
   line-height: 2.2rem;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+h3.sub-title {
+  margin-top:100px;
+  font-style: italic;
 }
 
 .job-section {
